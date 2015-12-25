@@ -9,46 +9,44 @@
 </head>
 <body>
 <div class = 'container'>
-<div class = 'row'>
 
-<div class = 'col-md-2 col-md-offset-1'>
-<div id = 'add'>+</div>
-</div>
-<div class = 'col-md-8'>
-<!--<form id = 'add-new-tile' style = 'display:none'>-->
-<a href ='#'><span>Home</span></a>
-<a href ='#'><span>Settings</span></a>
-<span> {{user.username}} </span>
-<span> Score: {{user.score}} </span>
-<span> Logout </span>
-<form id = 'add-new-tile'>
-	<textarea id = 'complaint'>What's wrong?</textarea>
-	<br>
-	<button> Post </button>
-</form>
+	<div class = 'row'>
+		<div class = 'col-md-2 col-md-offset-1'>
+			<div id = 'add'>+</div>
+		</div>
+		<div class = 'col-md-8'>
+		<!--<form id = 'add-new-tile' style = 'display:none'>-->
+		<a href ='#'><span>Home</span></a>
+		<a href ='#'><span>Settings</span></a>
+		<span> {{user.username}} </span>
+		<span> Score: {{user.score}} </span>
+		<span> Logout </span>
+		<form id = 'add-new-tile' action = "{% url 'myTiles' user_id=user.id %}" method = 'post'>
+			<textarea id = 'complaint'>What's wrong?</textarea>
+			<br>
+			<button> Post </button>
+		</form>
 
-</div>
-</div>
-
-
-<div class = 'row'>
-
-<div class = 'col-md-10 col-md-offset-1'>
-	{% for tile in tiles %}
-	<div class = 'col-md-3 tile'>
-		<p>{{tile.content}}<p>
-		<p>{{tile.created}}<p>
-		<button> Edit </button>
-		<button> Delete </button>
-		<button> Share </button>
-		<input type='checkbox'>Solved?
-	</div>
-		{% endfor %}
-
+		</div>
 	</div>
 
 
-</div>
+	<div class = 'row'>
+
+		<div class = 'col-md-10 col-md-offset-1'>
+			{% for tile in tiles %}
+			<div class = 'col-md-3 tile'>
+				<p>{{tile.content}}<p>
+				<p>{{tile.created_date}}<p>
+				<a href="{% url 'edit' user_id=user.id tile_id=tile.id %}">Edit</a>
+				<a href="{% url 'delete' user_id=user.id tile_id=tile.id %}">Delete</a>
+				<a href="{% url 'solved' user_id=user.id tile_id=tile.id %}">Solved?</a>
+				<a href="{% url 'share' user_id=user.id tile_id=tile.id %}">Share</a>
+			</div>
+				{% endfor %}
+		</div>
+
+	</div>
 
 </div>
 </body>
