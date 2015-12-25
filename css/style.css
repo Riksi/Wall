@@ -1,0 +1,70 @@
+.clickon{
+cursor:pointer;}
+* {
+    border: 1px solid red !important;
+}
+
+#definition{
+	position: absolute;
+	background-color: white;
+	display:block;
+	visibility: hidden;
+	width:150px;
+	left:250px;
+	margin:auto;
+}
+
+.outer{
+	display:inline;
+}
+
+img{
+	margin-left:auto;
+	margin-right:auto;
+}
+.description{
+	width:200px;
+}
+
+
+#add{
+	text-align: center;
+	margin:50px;
+	margin-left: 75px;
+	width:50px;
+	height:50px;
+	font-size: 35px;
+	border-radius: 20px ;
+}
+pre{
+    white-space: pre-wrap;
+    background: #EEE;
+}
+
+.tile{
+	height:300px;
+	width:300px;
+	margin:20px;
+}
+
+/*
+@media screen and (max-width: 991px) and (min-width: 555px){
+	.main-image{
+		width:555px;
+		height:auto;
+	}
+}
+
+@media screen and (min-width: 555px){
+	.col-md-4{
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
+	.featured-work 	{
+  display: block;
+  margin-left: 73.5;
+}
+
+
+}*/

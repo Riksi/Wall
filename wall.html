@@ -1,0 +1,47 @@
+<!--Please use bootstrap for now as you want to focus on functionality. Later on you can create your own styles-->
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="css/bootstrap.min.css">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div class = 'row'>
+
+<div class = 'col-md-2 col-md-offset-1'>
+<div id = 'add'>+</div>
+</div>
+<div class = 'col-md-8'>
+<form id = 'add-new-tile' style = 'display:none'>
+	<textarea id = 'complaint'>What's wrong?</textarea>
+	<br>
+	<button> Post </button>
+</form>
+
+</div>
+</div>
+<div class = 'row'>
+<div class = 'col-md-10 col-md-offset-1'>
+	<div class = 'col-md-3 tile' contenteditable = "true"></div>
+
+</div>	
+
+
+
+</body>
+<script>
+var complaint = document.getElementById('complaint');
+var add = document.getElementById('add');
+var form = document.getElementById('add-new-tile');
+add.addEventListener('click',
+	function(){
+		form.setAttribute('style','display:true');
+	});
+complaint.addEventListener('keypress',
+	function(){
+		complaint.innerHTML = '';
+	});
+
+
+</script>
+</html>
