@@ -16,24 +16,43 @@ def welcome(request):
 	return render(request,'welcome.html',{})
 
 def myTiles(request,user_id):
-	tiles = Tile.objects.all()
-	return render(request,'tiles.html',{'tiles':tiles, 'user': user})
+	user = User.objects.filter(id = user_id)
+	tiles = Tile.objects.filter(author_id=user_id)
+	if user:
+		return render(request,'tiles.html',{'tiles':tiles, 'user': user[0]})
+	else:
+		return HttpResponse('This user does not exist!')
 
 def deleteTile(request,user_id,tile_id):
+	user = User.objects.get(id = user_id)
 	tile = Tile.objects.get(id=tile_id)
 	tile.delete()
 	tiles = Tile.objects.all()
-	return redirect('myTiles',user_id=user['id'])
+	return redirect('myTiles',user_id=user.id)
 
 def editTile(request,user_id,tile_id):
 	return HttpResponse('Edit page')
 
 def shareTile(request,user_id,tile_id):
-	return HttpResponse('Share page')
+	user = User.objects.get(id = user_id)
+	tile = Tile.objects.get(id=tile_id)
+	tile.public = 'True'
+	tile.save()
+	return redirect('myTiles',user_id=user.id)
+
+def unShareTile(request,user_id,tile_id):
+	user = User.objects.get(id = user_id)
+	tile = Tile.objects.get(id=tile_id)
+	tile.public = 'False'
+	tile.save()
+	return redirect('myTiles',user_id=user.id)
 
 def tileSolved(request,user_id,tile_id):
-	return HttpResponse('Solved page')
-
+	user = User.objects.get(id = user_id)
+	tile = Tile.objects.get(id=tile_id)
+	tile.solved = 'True'
+	tile.save()
+	return redirect('myTiles',user_id=user.id)
 
 def settings(request,user_id):
 	return HttpResponse('Your settings')

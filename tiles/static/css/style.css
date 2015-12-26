@@ -47,6 +47,14 @@ pre{
 	margin:20px;
 }
 
+.not_solved{
+	background-color: white;
+}
+
+.solved{
+	background-color: #aaff80;
+}
+
 /*
 @media screen and (max-width: 991px) and (min-width: 555px){
 	.main-image{
