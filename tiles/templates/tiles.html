@@ -21,8 +21,11 @@
 		<span> {{user.username}} </span>
 		<span> Score: {{user.score}} </span>
 		<span> Logout </span>
-		<form id = 'add-new-tile' action = "{% url 'myTiles' user_id=user.id %}" method = 'post'>
-			<textarea id = 'complaint'>What's wrong?</textarea>
+		<form method="POST" class="post-form" id = 'add-new-tile' style = 'display:none'> 
+		{% csrf_token %}
+		<!-- action = "{% url 'myTiles' user_id=user.id %}">-->
+			{{ form.as_p }}
+			<!--<textarea id = 'complaint'>What's wrong?</textarea>-->
 			<br>
 			<button> Post </button>
 		</form>
@@ -34,26 +37,24 @@
 
 		<div class = 'col-md-10 col-md-offset-1'>
 			{% for tile in tiles %}
-			{% if tile.solved%}
-			<div class = 'col-md-3 tile solved'>
-			{% else %}
-			<div class = 'col-md-3 tile not_solved'>
-			{% endif %}
+
+			<div class = 'col-md-3 tile {% if not tile.solved%} not-{% endif %}solved {% if tile.public %} public {% endif %}'>
+
 				<p>{{tile.content}}<p>
 				<p>{{tile.created_date}}<p>
 				<a href="{% url 'edit' user_id=user.id tile_id=tile.id %}">Edit</a>
 				<a href="{% url 'delete' user_id=user.id tile_id=tile.id %}">Delete</a>
 
-				{% if tile.solved%}
+				{% if tile.solved %}
 				<span>Solved!</span>
 				{% else %}
 				<a href="{% url 'solved' user_id=user.id tile_id=tile.id %}">Solved?</a>
 				{% endif %}
 
-				{% if tile.public%}
-				<a href="{% url 'share' user_id=user.id tile_id=tile.id %}">Unshare</a>
+				{% if tile.public %}
+				<a href="{% url 'unshare' user_id=user.id tile_id=tile.id %}">Unshare</a>
 				{% else %}
-				<a href="{% url 'unshare' user_id=user.id tile_id=tile.id %}">Share</a>
+				<a href="{% url 'share' user_id=user.id tile_id=tile.id %}">Share</a>
 				{% endif %}
 
 
@@ -66,17 +67,24 @@
 </div>
 </body>
 <script>
-/*var complaint = document.getElementById('complaint');
+var complaint = document.getElementById('complaint');
 var add = document.getElementById('add');
 var form = document.getElementById('add-new-tile');
 add.addEventListener('click',
 	function(){
-		form.setAttribute('style','display:true');
+		if(form.getAttribute('style') == 'display:none'){
+		form.setAttribute('style','display:true');}
+		else
+			{form.setAttribute('style','display:none');}
 	});
-complaint.addEventListener('keypress',
+/*complaint.addEventListener('keypress',
 	function(){
 		complaint.innerHTML = '';
 	});*/
+
+//When 'Solved?' is clicked, want to make a request to the server to change the status
+//Then want to modify the appearance of the tile by changing the class 
+
 
 
 </script>

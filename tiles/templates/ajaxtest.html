@@ -1,0 +1,27 @@
+<html>
+<head>
+<script type='text/javascript'>
+    var someText;
+    function helloWorld(){
+        someText = new XMLHttpRequest();
+        someText.onreadystatechange = callBack;
+
+        someText.open("GET", "{% url 'ajaxtest' %}", true);
+        someText.send();
+    };
+
+    // When information comes back from the server.
+    function callBack(){
+        if(someText.readyState==4 && someText.status==200){
+            document.getElementById('result').innerHtml = someText.responseText;
+        }
+    };
+</script>
+
+</head>
+<body>
+<div id="result">{{rand_num}}</div>
+<input type='button' value='Abraca dabra!' onclick="helloWorld()"/>
+
+</body>
+</html>

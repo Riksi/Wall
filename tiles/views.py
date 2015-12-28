@@ -1,6 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.shortcuts import redirect
+from .forms import TileForm
 from .models import User, Tile
 
 user = {'id': 2, 'username': 'Anush', 'score':-1}
@@ -15,13 +16,28 @@ tiles = [{'id': 1, 'created': 'today', 'content': 'I am very sad'},
 def welcome(request):
 	return render(request,'welcome.html',{})
 
+def test(request):
+	return render(request,'test.html',{})
+
+
 def myTiles(request,user_id):
-	user = User.objects.filter(id = user_id)
-	tiles = Tile.objects.filter(author_id=user_id)
-	if user:
-		return render(request,'tiles.html',{'tiles':tiles, 'user': user[0]})
+	if request.method == "POST":
+		form = TileForm(request.POST)
+		if form.is_valid():
+			tile = form.save(commit=False)
+			tile.author = User.objects.get(id = user_id)
+			tile.save()
+		return redirect('myTiles',user_id=user_id)
 	else:
-		return HttpResponse('This user does not exist!')
+		form = TileForm()
+		user = User.objects.filter(id = user_id)
+		tiles = Tile.objects.filter(author_id=user_id)
+		if user:
+			return render(request,'tiles.html',{'tiles':tiles, 
+												'user': user[0],
+												 'form': form})
+		else:
+			return HttpResponse('This user does not exist!')
 
 def deleteTile(request,user_id,tile_id):
 	user = User.objects.get(id = user_id)
@@ -36,23 +52,31 @@ def editTile(request,user_id,tile_id):
 def shareTile(request,user_id,tile_id):
 	user = User.objects.get(id = user_id)
 	tile = Tile.objects.get(id=tile_id)
-	tile.public = 'True'
+	tile.public = True
 	tile.save()
 	return redirect('myTiles',user_id=user.id)
 
 def unShareTile(request,user_id,tile_id):
 	user = User.objects.get(id = user_id)
 	tile = Tile.objects.get(id=tile_id)
-	tile.public = 'False'
+	tile.public = False
 	tile.save()
 	return redirect('myTiles',user_id=user.id)
 
 def tileSolved(request,user_id,tile_id):
 	user = User.objects.get(id = user_id)
 	tile = Tile.objects.get(id=tile_id)
-	tile.solved = 'True'
+	tile.solved = True
 	tile.save()
 	return redirect('myTiles',user_id=user.id)
+
+
+
+from django.http import JsonResponse
+import random
+def ajaxTest(request):
+    random_no = random.randint(1,100)
+    return JsonResponse({'random_no': random_no})
 
 def settings(request,user_id):
 	return HttpResponse('Your settings')

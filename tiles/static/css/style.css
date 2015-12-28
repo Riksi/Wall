@@ -55,6 +55,10 @@ pre{
 	background-color: #aaff80;
 }
 
+.public{
+	font-style: italic;
+}
+
 /*
 @media screen and (max-width: 991px) and (min-width: 555px){
 	.main-image{
