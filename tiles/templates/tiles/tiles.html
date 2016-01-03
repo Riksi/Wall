@@ -1,0 +1,91 @@
+<!--Please use bootstrap for now as you want to focus on functionality. Later on you can create your own styles-->
+{% load staticfiles %}
+<html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+<div class = 'container'>
+
+	<div class = 'row'>
+		<div class = 'col-md-2 col-md-offset-1'>
+			<div id = 'add'>+</div>
+		</div>
+		<div class = 'col-md-8'>
+		<!--<form id = 'add-new-tile' style = 'display:none'>-->
+		<a href = "{% url 'welcome' %}"><span>Home</span></a>
+		<a href ="{% url 'settings' user_id=user.id %}"><span>Settings</span></a>
+		<span> {{user.username}} </span>
+		<span> Score: {{user.score}} </span>
+		<a href ="{% url 'wallLogout' %}"><span>Logout</span></a>
+		<form method="POST" class="post-form" id = 'add-new-tile' style = 'display:none'> 
+		{% csrf_token %}
+		<!-- action = "{% url 'myTiles' user_id=user.id %}">-->
+			{{ form.as_p }}
+			<!--<textarea id = 'complaint'>What's wrong?</textarea>-->
+			<br>
+			<button> Post </button>
+		</form>
+
+		</div>
+	</div>
+
+	<div class = 'row'>
+
+		<div class = 'col-md-10 col-md-offset-1'>
+			{% for tile in tiles %}
+
+			<div class = 'col-md-3 tile {% if not tile.solved%} not-{% endif %}solved {% if tile.public %} public {% endif %}'>
+
+				<p>{{tile.content}}<p>
+				<p>{{tile.created_date}}<p>
+				<a href="{% url 'edit' user_id=user.id tile_id=tile.id %}">Edit</a>
+				<a href="{% url 'delete' user_id=user.id tile_id=tile.id %}">Delete</a>
+
+				{% if tile.solved %}
+				<span>Solved!</span>
+				{% else %}
+				<a href="{% url 'solved' user_id=user.id tile_id=tile.id %}">Solved?</a>
+				{% endif %}
+
+				{% if tile.public %}
+				<a href="{% url 'unshare' user_id=user.id tile_id=tile.id %}">Unshare</a>
+				{% else %}
+				<a href="{% url 'share' user_id=user.id tile_id=tile.id %}">Share</a>
+				{% endif %}
+
+
+			</div>
+				{% endfor %}
+		</div>
+
+	</div>
+
+</div>
+</body>
+<script>
+var complaint = document.getElementById('complaint');
+var add = document.getElementById('add');
+var form = document.getElementById('add-new-tile');
+add.addEventListener('click',
+	function(){
+		if(form.getAttribute('style') == 'display:none'){
+		form.setAttribute('style','display:true');}
+		else
+			{form.setAttribute('style','display:none');}
+	});
+/*complaint.addEventListener('keypress',
+	function(){
+		complaint.innerHTML = '';
+	});*/
+
+//When 'Solved?' is clicked, want to make a request to the server to change the status
+//Then want to modify the appearance of the tile by changing the class 
+
+
+
+</script>
+</html>

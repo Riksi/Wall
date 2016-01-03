@@ -7,16 +7,14 @@
 </head>
 <body>
 <div> <h1> WALL </h1> </div>
-<div> Login </div>
-<div> Sign Up </div>
-<div> Example tiles </div>
-<h2> Share your troubles </h2>
-<form method="POST" id = 'register'> 
-	{% csrf_token %}
-	{{ form.as_p }}
-	<button>Sign Up</button>
+<form method="POST" id = 'login'> 
+	{% csrf_token %} 
+<div id = 'error'>{{ error }}</div>
+  Username: <input type="text" name="uname"><br> 
+  Password: <input type="password" name="pword"><br>	
+  <button>Login</button>
 </form>
-</form>
+
 </body>
 </html>
 

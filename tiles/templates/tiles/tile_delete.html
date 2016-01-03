@@ -1,0 +1,32 @@
+<!--Please use bootstrap for now as you want to focus on functionality. Later on you can create your own styles-->
+{% load staticfiles %}
+<html>
+<html>
+<head>
+<meta charset="utf-8">
+<link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+<link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+
+<body>
+<div class = 'container'>
+
+	<div class = 'row'>
+		<div class = 'col-md-8'>
+		<a href ='#'><span>Home</span></a>
+		<a href ='#'><span>Settings</span></a>
+		<span> {{user.username}} </span>
+		<span> Score: {{user.score}} </span>
+		<span> Logout </span>
+		<form method="POST" class="post-form" id = 'add-new-tile'> 
+				{% csrf_token %}
+			Are you sure you want to delete this tile?
+			<button> Yes </button>
+		</form>
+
+		</div>
+	</div>
+
+</body>
+
+</html>
