@@ -22,57 +22,100 @@ tiles = [{'id': 1, 'created': 'today', 'content': 'I am very sad'},
 def test(request):
 	return render(request,'tiles/test.html',{})
 
-def myTiles(request,user_id):
-	if request.method == "POST":
-		form = TileForm(request.POST)
-		if form.is_valid():
-			tile = form.save(commit=False)
-			tile.author = User.objects.get(id = user_id)
-			tile.save()
-		return redirect('myTiles',user_id=user_id)
-	else:
-		form = TileForm()
-		user = User.objects.filter(id = user_id)
-		tiles = Tile.objects.filter(author_id=user_id)
-		if user:
-			print(request.user.id == user[0].id)
-			if request.user.is_authenticated() and request.user.id == user[0].id:
-				return render(request,'tiles/tiles.html',{'tiles':tiles, 
-												'user': user[0],
-												 'form': form})
-			else:
-				return redirect('%s?next=%s' % (reverse('wallLogin'), request.path))
+def myTiles(request):
+	if request.user.is_authenticated():
+
+		user = request.user	
+		user_id = request.user.id
+		if request.method == "POST":
+			form = TileForm(request.POST)
+
+			if form.is_valid():
+				tile = form.save(commit=False)
+				tile.author = User.objects.get(id = user_id)
+				tile.save()
+			return redirect('myTiles')
 		else:
-			return HttpResponse('This user does not exist!')
+			form = TileForm()
+			tiles = Tile.objects.filter(author_id=user_id)
+			
+			return render(request,'tiles/tiles.html',{'tiles':tiles, 
+												'user': user,
+												 'form': form})
+	else:
+		return redirect('%s?next=%s' % (reverse('wallLogin'), request.path))
 
-def deleteTile(request,user_id,tile_id):
+#Should deal with cases where an invalid request is made - in such a case redirect to an error page appropriately
 
-	if request.method == "POST":
-		user = User.objects.get(id = user_id)
-		tile = Tile.objects.get(id=tile_id)
-		tile.delete()
-		return redirect('myTiles',user_id=user.id)
+def deleteTile(request):
+	if request.user.is_authenticated():
+
+		user = request.user	
+		user_id = request.user.id
+
+		if request.method == "POST" and 'tile_id' in request.POST:
+			tile_id = request.POST['tile_id']
+			tile = Tile.objects.filter(id=tile_id)
+			if tile:
+				tile[0].delete()
+		else:
+			if 'tile_id' in request.GET:
+				tile_id = request.GET['tile_id']
+				return render(request,'tiles/tile_delete.html',{'tile_id': tile_id})
+
+		return redirect('myTiles')
 
 	else:
-		return render(request,'tiles/tile_delete.html',{})
+		return redirect('%s?next=%s' % (reverse('wallLogin'), request.path))
 
-def editTile(request,user_id,tile_id):
-	tile = Tile.objects.get(id=tile_id)
+def editTile(request):
+	if request.user.is_authenticated():
 	
-	if request.method == "POST":
-		form = TileForm(request.POST,instance = tile)
-		if form.is_valid():
-			tile = form.save(commit=False)
-			tile.author = User.objects.get(id = user_id)
-			tile.created_date = timezone.now()
-			tile.save()
-			return redirect('myTiles', user_id=user_id)
-		#return redirect('editTile',user_id = user_id, tile_id= tile_id)
-		return render(request,'tiles/tile_edit.html',{'form':form})
-	else:
-		form = TileForm(instance = tile)
-		return render(request,'tiles/tile_edit.html',{'form':form})
 
+		if request.method == "POST" and'tile_id' in request.POST:
+			tile_id = request.POST['tile_id']
+			tile = Tile.objects.get(id=tile_id)
+			form = TileForm(request.POST,instance = tile)
+			if form.is_valid():
+				tile = form.save(commit=False)
+				tile.author = request.user
+				tile.created_date = timezone.now() #should change this to last modified date
+				tile.save()
+				return redirect('myTiles')
+			return render(request,'tiles/tile_edit.html',{'form':form})
+
+		else:
+			if 'tile_id' in request.GET:
+				tile_id = request.GET['tile_id']
+				tile = Tile.objects.get(id=tile_id)
+				form = TileForm(instance = tile)
+				return render(request,'tiles/tile_edit.html',{'form':form,'tile_id':tile_id})
+
+		return redirect('myTiles')
+
+
+	else:
+		return redirect('%s?next=%s' % (reverse('wallLogin'), request.path))
+
+
+def setTileStatus(request):
+	if request.user.is_authenticated():
+
+		tile_id = request.GET['tile_id']
+		setting = request.GET['setting']
+		tile = Tile.objects.get(id=tile_id)
+		if setting=='share':
+			tile.public = True
+		if setting=='unshare':
+			tile.public = False
+		if setting=='solved':
+			tile.solved = True
+		tile.save()
+		return redirect('myTiles')
+
+	else:
+		return redirect('%s?next=%s' % (reverse('wallLogin'), request.path))
+"""
 def shareTile(request,user_id,tile_id):
 	user = User.objects.get(id = user_id)
 	tile = Tile.objects.get(id=tile_id)
@@ -93,7 +136,7 @@ def tileSolved(request,user_id,tile_id):
 	tile.solved = True
 	tile.save()
 	return redirect('myTiles',user_id=user.id)
-
+"""
 from django.http import JsonResponse
 import random
 def ajaxTest(request):
@@ -162,23 +205,17 @@ def wallLogin(request):
 		user = authenticate(username=username, password=password)
 		
 		if user is not None:
-			print('Successfully authenticated\n')
 			if user.is_active:
 				
 				login(request, user)
-
-				if next:
-					return redirect(next)
-				else:
-					return redirect(reverse('myTiles', kwargs = {'user_id':user.id}))
+				
+				return redirect(next)
 		return render(request,'tiles/login.html',{'error' :'You have not correctly entered your username and/or password', 'next':next})
 	else:
-		next = ''
+		next = reverse(myTiles) 
 		if 'next' in request.GET:
-
-			next = next.join(request.GET['next'])
+			next = (request.GET['next'])
 		return render(request,'tiles/login.html', {'error': '','next': next})
-#request.get_full_path()
 
 def wallLogout(request):
 	logout(request)

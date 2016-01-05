@@ -23,6 +23,7 @@
 			{{ form.as_p }}
 			<br>
 			<button> Save </button>
+		<input type = 'hidden' name = 'tile_id' value = {% if tile_id %}{{tile_id}}{%else%}''{% endif %}>
 		</form>
 
 		</div>
