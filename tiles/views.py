@@ -6,6 +6,7 @@ from .forms import TileForm, RegForm
 from .models import Tile
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
+from django.core.urlresolvers import reverse
 
 
 user = {'id': 2, 'username': 'Anush', 'score':-1}
@@ -34,9 +35,13 @@ def myTiles(request,user_id):
 		user = User.objects.filter(id = user_id)
 		tiles = Tile.objects.filter(author_id=user_id)
 		if user:
-			return render(request,'tiles/tiles.html',{'tiles':tiles, 
+			print(request.user.id == user[0].id)
+			if request.user.is_authenticated() and request.user.id == user[0].id:
+				return render(request,'tiles/tiles.html',{'tiles':tiles, 
 												'user': user[0],
 												 'form': form})
+			else:
+				return redirect('%s?next=%s' % (reverse('wallLogin'), request.path))
 		else:
 			return HttpResponse('This user does not exist!')
 
@@ -62,7 +67,8 @@ def editTile(request,user_id,tile_id):
 			tile.created_date = timezone.now()
 			tile.save()
 			return redirect('myTiles', user_id=user_id)
-		return redirect('editTile',{'form':form})
+		#return redirect('editTile',user_id = user_id, tile_id= tile_id)
+		return render(request,'tiles/tile_edit.html',{'form':form})
 	else:
 		form = TileForm(instance = tile)
 		return render(request,'tiles/tile_edit.html',{'form':form})
@@ -123,6 +129,7 @@ def settings(request,user_id):
 
 def welcome(request):
 	if request.method == "POST":
+
 		form = RegForm(request.POST)
 		if form.is_valid():
 			username = request.POST['username']
@@ -142,18 +149,16 @@ def welcome(request):
 		return render(request,'tiles/welcome.html',{'form': form})
 
 	else:
+		print(request.user.is_authenticated())
 		form = RegForm()
 		return render(request,'tiles/welcome.html',{'form': form})
 
 def wallLogin(request):
 	if request.method == "POST":
 		form = RegForm()
-		##form = RegForm(request.POST)
-		##if form.is_valid():
-		print ('authenticate called\n')
 		username = request.POST['uname']
 		password = request.POST['pword']
-		
+		next = request.POST['next']
 		user = authenticate(username=username, password=password)
 		
 		if user is not None:
@@ -161,13 +166,19 @@ def wallLogin(request):
 			if user.is_active:
 				
 				login(request, user)
-				print('Successfully logged in\n')
-				return redirect('myTiles',user_id=user.id)
-		#return render(request,'tiles/login.html')
-		return render(request,'tiles/login.html',{'error' :'You have not correctly entered your username and/or password'})
-	else:
-		return render(request,'tiles/login.html', {'error': ''})
 
+				if next:
+					return redirect(next)
+				else:
+					return redirect(reverse('myTiles', kwargs = {'user_id':user.id}))
+		return render(request,'tiles/login.html',{'error' :'You have not correctly entered your username and/or password', 'next':next})
+	else:
+		next = ''
+		if 'next' in request.GET:
+
+			next = next.join(request.GET['next'])
+		return render(request,'tiles/login.html', {'error': '','next': next})
+#request.get_full_path()
 
 def wallLogout(request):
 	logout(request)

@@ -7,6 +7,9 @@
 </head>
 <body>
 <div> <h1> WALL </h1> </div>
+{% if request.user.is_authenticated %}
+<div> <a href ="{% url 'wallLogout' %}"><span>Logout</span></a> </div>
+{% else %}
 <div> <a href ="{% url 'wallLogin' %}"><span>Login</span></a> </div>
 <!--<div> Sign Up </div>-->
 <div> Example tiles </div>
@@ -15,6 +18,7 @@
 	{% csrf_token %}
 	{{ form.as_p }}
 	<button>Sign Up</button>
+{% endif %}
 </form>
 </form>
 </body>
