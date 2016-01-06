@@ -22,7 +22,7 @@
 				{% csrf_token %}
 			Are you sure you want to delete this tile?
 			<input type = 'submit' value = 'Yes'> </button>
-			<input type = 'submit' value = 'No' formaction = {% url 'myTiles' %} formmethod = 'GET'> </button>
+			<input type = 'submit' value = 'No' formaction = {% url 'Tiles' %} formmethod = 'GET'> </button>
 			<input type = 'hidden' name = 'tile_id' 'tile_id' value = {% if tile_id %}{{tile_id}}{% else %}''{% endif %}>
 		</form>
 

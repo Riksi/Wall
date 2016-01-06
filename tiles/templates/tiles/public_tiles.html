@@ -9,55 +9,33 @@
 </head>
 <body>
 <div class = 'container'>
-
 	<div class = 'row'>
-		<div class = 'col-md-2 col-md-offset-1'>
-			<div id = 'add'>+</div>
-		</div>
-		<div class = 'col-md-8'>
-		<!--<form id = 'add-new-tile' style = 'display:none'>-->
-		<a href ="{% url 'settings' %}"><span>Settings</span></a>
-		<span> {{user.username}} </span>
-		<span> Score: {{user.score}} </span>
-		<a href ="{% url 'wallLogout' %}"><span>Logout</span></a>
-		<form method="POST" class="post-form" id = 'add-new-tile' style = 'display:none'> 
-		{% csrf_token %}
-		<!-- action = "{# url 'myTiles' user_id=user.id #}">-->
-			{{ form.as_p }}
-			<!--<textarea id = 'complaint'>What's wrong?</textarea>-->
-			<br>
-			<button> Post </button>
-		</form>
-
-		</div>
+		<h1> {{user.username}}'s Tiles </h1>
 	</div>
 
 	<div class = 'row'>
 
 		<div class = 'col-md-10 col-md-offset-1'>
 			{% for tile in tiles %}
+				{% if tile.public %}
 
-			<div class = 'col-md-3 tile {% if not tile.solved%} not-{% endif %}solved {% if tile.public %} public {% endif %}'>
+			<div class = 'col-md-3 tile {% if not tile.solved%} not-{% endif %}solved'>
 
 				<p>{{tile.content}}<p>
 				<p>{{tile.created_date}}<p>
-				<a href="{% url 'edit'%}?tile_id={{tile.id}}">Edit</a>
-				<a href="{% url 'delete'%}?tile_id={{tile.id}}">Delete</a>
 
 				{% if tile.solved %}
 				<span>Solved!</span>
 				{% else %}
-				<a href="{% url 'status' %}?tile_id={{tile.id}}&setting=solved">Solved?</a>
+				<a href="">Help</a>
 				{% endif %}
 
-				{% if tile.public %}
-				<a href="{% url 'status'  %}?tile_id={{tile.id}}&setting=unshare">Unshare</a>
-				{% else %}
-				<a href="{% url 'status' %}?tile_id={{tile.id}}&setting=share">Share</a>
-				{% endif %}
+				
+				
 
 
 			</div>
+			{% endif %}
 				{% endfor %}
 		</div>
 

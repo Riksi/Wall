@@ -34,7 +34,7 @@ def myTiles(request):
 				tile = form.save(commit=False)
 				tile.author = User.objects.get(id = user_id)
 				tile.save()
-			return redirect('myTiles')
+			return redirect('Tiles')
 		else:
 			form = TileForm()
 			tiles = Tile.objects.filter(author_id=user_id)
@@ -63,7 +63,7 @@ def deleteTile(request):
 				tile_id = request.GET['tile_id']
 				return render(request,'tiles/tile_delete.html',{'tile_id': tile_id})
 
-		return redirect('myTiles')
+		return redirect('Tiles')
 
 	else:
 		return redirect('%s?next=%s' % (reverse('wallLogin'), request.path))
@@ -81,7 +81,7 @@ def editTile(request):
 				tile.author = request.user
 				tile.created_date = timezone.now() #should change this to last modified date
 				tile.save()
-				return redirect('myTiles')
+				return redirect('Tiles')
 			return render(request,'tiles/tile_edit.html',{'form':form})
 
 		else:
@@ -91,7 +91,7 @@ def editTile(request):
 				form = TileForm(instance = tile)
 				return render(request,'tiles/tile_edit.html',{'form':form,'tile_id':tile_id})
 
-		return redirect('myTiles')
+		return redirect('Tiles')
 
 
 	else:
@@ -111,7 +111,7 @@ def setTileStatus(request):
 		if setting=='solved':
 			tile.solved = True
 		tile.save()
-		return redirect('myTiles')
+		return redirect('Tiles')
 
 	else:
 		return redirect('%s?next=%s' % (reverse('wallLogin'), request.path))
@@ -121,21 +121,21 @@ def shareTile(request,user_id,tile_id):
 	tile = Tile.objects.get(id=tile_id)
 	tile.public = True
 	tile.save()
-	return redirect('myTiles',user_id=user.id)
+	return redirect('Tiles',user_id=user.id)
 
 def unShareTile(request,user_id,tile_id):
 	user = User.objects.get(id = user_id)
 	tile = Tile.objects.get(id=tile_id)
 	tile.public = False
 	tile.save()
-	return redirect('myTiles',user_id=user.id)
+	return redirect('Tiles',user_id=user.id)
 
 def tileSolved(request,user_id,tile_id):
 	user = User.objects.get(id = user_id)
 	tile = Tile.objects.get(id=tile_id)
 	tile.solved = True
 	tile.save()
-	return redirect('myTiles',user_id=user.id)
+	return redirect('Tiles',user_id=user.id)
 """
 from django.http import JsonResponse
 import random
@@ -143,9 +143,13 @@ def ajaxTest(request):
     random_no = random.randint(1,100)
     return JsonResponse({'random_no': random_no})
 
-def settings(request,user_id):
-	return HttpResponse('Your settings')
+def settings(request):
+	if request.user.is_authenticated():
 
+		return HttpResponse('Your settings')
+
+	else:
+		return redirect('%s?next=%s' % (reverse('wallLogin'), request.path))
 
 
 """def login(request):
@@ -163,14 +167,17 @@ def settings(request,user_id):
 			
 			if user.is_active:
 				login(request, user)
-				return redirect('myTiles',user_id=user.id)
+				return redirect('Tiles',user_id=user.id)
 		return render(request,'tiles/welcome.html',{'form': form})
 
 	else:
 		form = RegForm()
 		return render(request,'tiles/welcome.html',{'form': form})"""
 
-def welcome(request):
+def Tiles(request):
+	print(request.user)
+	if request.user.is_authenticated():
+		return myTiles(request)
 	if request.method == "POST":
 
 		form = RegForm(request.POST)
@@ -178,8 +185,9 @@ def welcome(request):
 			username = request.POST['username']
 			password = request.POST['password']
 			u = User.objects.create_user(username = username, password = password)
-
-			return redirect('myTiles',user_id=u.id)
+		 
+			login(request, authenticate(username=username, password=password))
+			return redirect('Tiles')
 		"""	
 		user = authenticate(username=username, password=password)
 		print (user)
@@ -187,12 +195,11 @@ def welcome(request):
 			
 			if user.is_active:
 				login(request, user)
-				return redirect('myTiles',user_id=user.id)
+				return redirect('Tiles',user_id=user.id)
 		"""
 		return render(request,'tiles/welcome.html',{'form': form})
 
 	else:
-		print(request.user.is_authenticated())
 		form = RegForm()
 		return render(request,'tiles/welcome.html',{'form': form})
 
@@ -212,12 +219,21 @@ def wallLogin(request):
 				return redirect(next)
 		return render(request,'tiles/login.html',{'error' :'You have not correctly entered your username and/or password', 'next':next})
 	else:
-		next = reverse(myTiles) 
+		next = reverse('Tiles') 
 		if 'next' in request.GET:
 			next = (request.GET['next'])
 		return render(request,'tiles/login.html', {'error': '','next': next})
 
 def wallLogout(request):
 	logout(request)
-	return redirect('welcome')
+	return redirect('Tiles')
 	
+def publicTiles(request, username):
+	user = User.objects.filter(username=username)
+	if user:
+		user = user[0]
+		tiles = Tile.objects.filter(author=user)
+		return render(request,'tiles/public_tiles.html',{'tiles':tiles, 
+													'user': user})
+	else:
+		return HttpResponse('This user does not exist!')

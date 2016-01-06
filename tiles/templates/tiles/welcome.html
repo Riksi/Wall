@@ -6,13 +6,26 @@
 <link rel="stylesheet" href="{% static 'css/style.css' %}">
 </head>
 <body>
-<div> <h1> WALL </h1> </div>
+<div class = "row"> <div class = "col-md-12"> <h1> WALL </h1> </div> </div>
 {% if request.user.is_authenticated %}
 <div> <a href ="{% url 'wallLogout' %}"><span>Logout</span></a> </div>
 {% else %}
 <div> <a href ="{% url 'wallLogin' %}"><span>Login</span></a> </div>
 <!--<div> Sign Up </div>-->
-<div> Example tiles </div>
+<div class = "row"> 
+<div class = "col-md-3 tile">
+	I am so sad
+</div>
+<div class = "col-md-3 tile">
+	I am so sad
+</div>
+<div class = "col-md-3 tile">
+	I am so sad
+</div>
+<div class = "col-md-3 tile">
+	I am so sad
+</div>
+</div>
 <h2> Share your troubles </h2>
 <form method="POST" id = 'register'> 
 	{% csrf_token %}
